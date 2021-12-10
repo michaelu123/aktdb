@@ -1,0 +1,5 @@
+db.sqlite3
+*/__pycache__/*
+*/migrations/*
+mysqlclient-2.0.3-cp39-cp39-win_amd64.whl
+aktdb/settings.py

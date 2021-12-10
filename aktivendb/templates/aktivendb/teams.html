@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Alle AG's/OG's
+{% endblock title %}
+
+{% block content %}
+    <div>
+        <label for="teamInput">Name</label>
+        <input type="text" placeholder="Suche.." id="team_input" onkeyup="filterFunction()"">
+        <ul id="team_list">
+            {% for team in teams %}
+                {% if team.linked %}
+                    <a href="{% url 'team-detail' team.id %}"><li class="linked">{{team.name}}</li></a>
+                {% else %}
+                    <li>{{team.name}}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% if is_admin %}
+            <br>
+            <button type="button">
+                <a href="addteam">Neue AG/OG hinzufügen</a>
+            </button>
+        {% endif %}    
+    </div>
+    <script>
+        function filterFunction() {
+            var input, filter, div, lis, i, txtValue;
+            input = document.getElementById("team_input");
+            filter = input.value.toUpperCase();
+            div = document.getElementById("team_list");
+            lis = div.getElementsByTagName("a");
+            for (i = 0; i < lis.length; i++) {
+                txtValue = lis[i].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    lis[i].style.display = "";
+                } else {
+                    lis[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+{% endblock content %}
+

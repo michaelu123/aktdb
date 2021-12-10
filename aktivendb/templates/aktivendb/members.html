@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Alle Aktiven
+{% endblock title %}
+
+{% block content %}
+    <div>
+        <label for="memberInput">Name</label>
+        <input type="text" placeholder="Suche.." id="member_input" onkeyup="filterFunction()" value="{{search}}">
+        <ul id="member_list">
+            {% for member in members %}
+                {% if member.linked %}
+                    <a href="{% url 'member-detail' member.id %}?search="><li class="linked">{{member.first_name}} {{member.last_name}}</li></a>
+                {% else %}
+                    <li>{{member.first_name}} {{member.last_name}}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% if is_admin %}
+            <br>
+            <button type="button">
+                <a href="addmember">Neues Mitglied hinzufügen</a>
+            </button>
+        {% endif %}    
+    </div>
+    {% if is_admin %}
+        <div>
+            <h2>Excel-Tabelle erzeugen</h2>
+            <form id="excel-form" action="{% url 'excel-members' %}" method="POST">
+                {% csrf_token %}
+                <label for="file-id">Dateiname: </label>
+                <input id="file-id" type="text" name="file" placeholder="Dateiname" required> 
+                <label for="email-select">Bevorzugte Email-Adresse: </label>
+                <select id="email-select" name="pref-email" form="excel-form" size="0">
+                    <option value='ADFC' selected>ADFC-Adresse</option>
+                    <option value='Privat'>private Adresse</option>
+                </select>
+                <input type="submit" value="Tabelle erzeugen" id="create_excel">
+            </form>
+        </div>
+    {% endif %}
+    <script>
+        filterFunction();
+        function filterFunction() {
+            var input, filter, filterUC, div, lis, i, txtValue;
+            input = document.getElementById("member_input");
+            filter = input.value;
+            filterUC = filter.toUpperCase();
+            div = document.getElementById("member_list");
+            lis = div.children;
+            for (i = 0; i < lis.length; i++) {
+                txtValue = lis[i].innerText;
+                if (txtValue.toUpperCase().indexOf(filterUC) > -1) {
+                    lis[i].style.display = "";
+                    if (lis[i].href) {
+                        lis[i].href = lis[i].href.replace(/search=.*/, "search=" + filter)
+                    }
+                } else {
+                    lis[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+{% endblock content %}

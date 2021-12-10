@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %} 
+
+{% block title %}
+    {{ team.name }}
+{% endblock title %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'aktivendb/team-detail.css' %}" />
+{% endblock %} 
+
+{% block content %}
+  <section id="teamdetail_form">
+    <h2>{{team.name}}</h2>
+    <form action="{% url 'team-detail' team.id %}" method="POST">
+      {% csrf_token %}
+       <input type="hidden" value="update_team" name="action">
+      {{ form.as_p }}
+      <input type="submit" value="Änderungen speichern" id="team_update">
+      {% if is_admin %}
+        <button type="button" id="team_delete">
+          <a href="{% url 'teams-all' %}?delete={{team.id}}" onclick="return confirm('Sicher?')">
+            {{team.name}} löschen
+          </a>
+        </button>
+      {% endif %}
+    </form>
+  </section>
+
+  <section id = "member-section">
+      <h2>Aktive Mitglieder</h2>
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Rolle</th>
+          <th>Kommentar</th>
+          <th colspan="2">Mitgliedschaft</th>
+        </tr>
+        <tr>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th>ändern</th>
+          <th>löschen</th>
+        </tr>
+        {% for teammember in teammembers %}
+          <tr>
+            <td><a href="{% url 'member-detail' teammember.member.id %}">{{teammember.member.fullname}}</a></td>
+            <td>{{teammember.member_role.title}}</td>
+            <td>{{teammember.admin_comments}}</td>
+            <td><a href="{% url 'team-detail' team.id %}?updtm={{teammember.id}}#updtm">ändern</a></td >
+            <td><a href="{% url 'team-detail' team.id %}?deltm={{teammember.id}}" onclick="return confirm('Sicher?')">löschen</a></td>
+          </tr>
+        {% endfor %}
+      </table>
+  </section>
+
+  {% if teammember%}
+    <section id="updtm">
+      <h2>Mitgliedschaft von {{ teammember.member.fullname }} ändern</h2>  
+      <form id="upd-teammember-form" action="{% url 'team-detail' team.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" value="update_teammember" name="action">
+        <input type="hidden" value="{{ teammember.id }}" name="teammember_id">
+        <div id="roleDropdown">
+          <label for="role-select">Rolle</label>
+          <select id="role-select" name="role" form="upd-teammember-form" size="0">
+              {% for role in roles %}
+                  {% if teammember.member_role.id == role.id %}
+                    <option value='{{ role.id }}' selected>{{role.title}}</option>
+                  {% else %}
+                    <option value='{{ role.id }}'>{{role.title}}</option>
+                  {% endif %}
+              {% endfor %}
+          </select>
+        </div>
+        <label for="comment">Kommentar</label>
+        <textarea name="comment" cols="40" rows="5" id = "comment">{{ teammember.admin_comments }}</textarea>
+        <input class="button" type="submit" value="Mitgliedschaft ändern">
+      </form>
+    </section>    
+  {% else %}
+    <section id="add-member">
+      <h2>Neues Mitglied hinzufügen</h2>
+      <form id="add-member-form" action="{% url 'team-detail' team.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" value="add_member" name="action">
+        <div id="memberDropdown">
+          <label for="memberInput">Mitglied</label>
+          <input type="text" placeholder="Suche.." id="memberInput" onkeyup="filterFunction()">
+          <select id="member-select" name="member" form="add-member-form" size="0" required onclick="selClick()">
+              <option value=''>--- Bitte Mitglied auswählen ---</option>
+              {% for member in allmembers %}
+                  <option value='{{ member.id }}'>{{ member.fullname }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div id="roleDropdown">
+          <label for="role-select">Rolle</label>
+          <select id="role-select" name="role" form="add-member-form" size="0" required>
+              {% for role in roles %}
+                  <option value='{{ role.id }}'>{{role.title}}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <label for="comment">Kommentar</label>
+        <textarea name="comment" cols="40" rows="5" id = "comment"></textarea>
+        <input class="button" type="submit" value="Mitglied hinzufügen">
+      </form>
+      
+      <script>
+          function filterFunction() {
+              var input, filter, ul, li, a, i;
+              input = document.getElementById("memberInput");
+              filter = input.value.toUpperCase();
+              div = document.getElementById("memberDropdown");
+              opts = div.getElementsByTagName("option");
+              optcount = 0;
+              optx = -1;
+              for (i = 0; i < opts.length; i++) {
+                  txtValue = opts[i].innerText;
+                  if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                      opts[i].style.display = "";
+                      optcount++;
+                      optx = i;
+                  } else {
+                      opts[i].style.display = "none";
+                  }
+              }
+              sel = document.getElementById("member-select");
+              sel.size = optcount > 10 ? 10 : optcount;
+              sel.selectedIndex = optx;
+          }
+          function selClick() {
+              sel = document.getElementById("member-select");
+              sel.size = 0;
+          }
+      </script>
+    </section>
+  {% endif %}
+
+  
+  <div>
+    <h2>Excel-Tabelle erzeugen</h2>
+    <form id="excel-form" action="{% url 'excel-team' team.id %}" method="POST">
+        {% csrf_token %}
+        <label for="file-id">Dateiname: </label>
+        <input id="file-id" type="text" name="file" placeholder="Dateiname" required> 
+        <label for="email-select">Bevorzugte Email-Adresse: </label>
+        <select id="email-select" name="pref-email" form="excel-form" size="0">
+            <option value='ADFC' selected>ADFC-Adresse</option>
+            <option value='Privat'>private Adresse</option>
+        </select>
+        <input type="submit" value="Tabelle erzeugen" id="create_excel">
+    </form>
+  </div>
+
+
+{% endblock content %}
+

@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %} 
+
+{% block title %}
+    {{ member.first_name }} {{ member.last_name }}
+{% endblock title %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'aktivendb/member-detail.css' %}" />
+{% endblock %} 
+
+{% block content %}
+  <section id="memberdetail_form">
+    <h2>{{member.fullname}}</h2>
+    <form action="{% url 'member-detail' member.id %}" method="POST">
+      {% csrf_token %}
+       <input type="hidden" value="update_member" name="action">
+      {{ form.as_p }}
+      <input type="submit" value="Änderungen speichern" id="member_update">
+      {% if is_admin %}
+        <button type="button" id="member_delete">
+          <a href="{% url 'members-all' %}?delete={{member.id}}" onclick="return confirm('Sicher?')">
+            {{member.fullname}} löschen
+          </a>
+        </button>
+      {% endif %}
+    </form>
+      {% if is_admin %}
+        <form action="{% url 'member-detail' member.id %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" value="make_user" name="action">
+          <input type="submit" value="Als Benutzer anmelden:" >
+          <input type="text" placeholder="Mit diesem Passwort" name="user_pwd" id="user_pwd">
+          </button>
+        </form>
+      {% endif %}
+  </section>
+
+  <section id = "team-section">
+      <h2>Mitglied in diesen AG's/OG's</h2>
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Rolle</th>
+          <th>Kommentar</th>
+          <th colspan="2">Mitgliedschaft</th>
+        </tr>
+        <tr>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th>ändern</th>
+          <th>löschen</th>
+        </tr>
+        {% for teammember in teammembers %}
+          <tr>
+            {% if teammember.linked %}
+              <td><a href="{% url 'team-detail' teammember.team.id %}">{{teammember.team.name}}</a></td>
+              <td>{{teammember.member_role.title}}</td>
+              <td>{{teammember.admin_comments}}</td>
+              <td><a href="{% url 'member-detail' member.id %}?updtm={{teammember.id}}#updtm" > ändern </a > </td >
+              <td><a href="{% url 'member-detail' member.id %}?deltm={{teammember.id}}" onclick="return confirm('Sicher?')">löschen</a></td>
+            {% else %}  
+              <td>{{teammember.team.name}}</td>
+              <td/>
+              <td/>
+              <td/>
+              <td/>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </table>
+  </section>
+
+  {% if teammember%}
+    <section id="updtm">
+      <h2>Mitgliedschaft in {{ teammember.team.name }} ändern</h2>  
+      <form id="upd-teammember-form" action="{% url 'member-detail' member.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" value="update_teammember" name="action">
+        <input type="hidden" value="{{ teammember.id }}" name="teammember_id">
+        <div id="roleDropdown">
+          <label for="role-select">Rolle</label>
+          <select id="role-select" name="role" form="upd-teammember-form" size="0">
+              {% for role in roles %}
+                  {% if teammember.member_role.id == role.id %}
+                    <option value='{{ role.id }}' selected>{{role.title}}</option>
+                  {% else %}
+                    <option value='{{ role.id }}'>{{role.title}}</option>
+                  {% endif %}
+              {% endfor %}
+          </select>
+        </div>
+        <label for="comment">Kommentar</label>
+        <textarea name="comment" cols="40" rows="5" id = "comment">{{ teammember.admin_comments }}</textarea>
+        <input class="button" type="submit" value="Mitgliedschaft ändern">
+      </form>
+    </section>    
+  {% else %}
+    {% if is_admin %}
+      <section id="add-team">
+        <h2>In anderer AG/OG als Mitglied eintragen</h2>
+        <form id="add-team-form" action="{% url 'member-detail' member.id %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" value="add_team" name="action">
+          <div id="teamDropdown">
+            <label for="teamInput">AG/OG</label>
+            <input type="text" placeholder="Suche.." id="teamInput" onkeyup="filterFunction()">
+            <select id="team-select" name="team" form="add-team-form" size="0" required onclick="selClick()">
+                <option value=''>--- Bitte Team auswählen ---</option>
+                {% for team in allteams %}
+                    <option value='{{ team.id }}'>{{ team.name }}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <div id="roleDropdown">
+            <label for="role-select">Rolle</label>
+            <select id="role-select" name="role" form="add-team-form" size="0" required>
+                {% for role in roles %}
+                    <option value='{{ role.id }}'>{{role.title}}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <label for="comment">Kommentar</label>
+          <textarea name="comment" cols="40" rows="5" id = "comment"></textarea>
+          <input class="button" type="submit" value="AG/OG hinzufügen">
+        </form>
+        
+        <script>
+            function filterFunction() {
+                var input, filter, ul, li, a, i;
+                input = document.getElementById("teamInput");
+                filter = input.value.toUpperCase();
+                div = document.getElementById("teamDropdown");
+                opts = div.getElementsByTagName("option");
+                optcount = 0;
+                optx = -1;
+                for (i = 0; i < opts.length; i++) {
+                    txtValue = opts[i].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        opts[i].style.display = "";
+                        optcount++;
+                        optx = i;
+                    } else {
+                        opts[i].style.display = "none";
+                    }
+                }
+                sel = document.getElementById("team-select");
+                sel.size = optcount > 10 ? 10 : optcount;
+                sel.selectedIndex = optx;
+            }
+            function selClick() {
+                sel = document.getElementById("team-select");
+                sel.size = 0;
+            }
+        </script>
+      </section>
+    {% endif %}
+  {% endif %}
+
+{% endblock content %}

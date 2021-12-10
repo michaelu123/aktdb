@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <header id="main-navigation">
+        <h1><a href="{% url 'starting' %}">AktivenDB</a></h1>
+        <nav>
+            {% if user.is_authenticated %}
+              <a href="{% url 'members-all' %}">Aktive</a>
+              <a href="{% url 'teams-all' %}">AG's/OG's</a>
+              <a href="{% url 'logout'%}?next={{request.path}}">Logout</a>
+              <span>User: {{ user.get_username }}</span>
+            {% else %}
+              <a href="{% url 'login'%}?next={{request.path}}">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+    {% block content %}{% endblock content %}
+    <br>
+    <br>
+</body>
+</html>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+#main-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom:45px;
+}
+
+
+#main-navigation a,
+#main-navigation span {
+  margin_bottom:45px;
+  margin_right: 10px;
+  padding: 5px;
+  height: 22rem;
+  transform-origin: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  background-color: white;
+}
+
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display:flex;
+  flex-wrap: wrap;
+}
+
+
+li {
+  text-decoration: none;
+  margin: 5px;
+  padding: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  background-color: white;
+  width: 15rem;
+  color: black;
+  background: #ccc;
+}
+
+li.linked {
+  background: white;
+}
+
+li.linked:hover,
+li.linked:active,
+a:hover,
+a:active {
+  color: #cf79f1;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+p {
+  display: flex;
+}
+label {
+  width : 30%;
+}
+p input,textarea {
+  width : 70%;
+}
+
+
+th {
+  text-align: left;
+}
+</style>
