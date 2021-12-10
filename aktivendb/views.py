@@ -51,13 +51,10 @@ class AllMembersView(LoginRequiredMixin, ListView):
                     if tm.member_role_id == vorsitz.id:
                         myTeams.add(tm.team_id)
                         break
-            filteredTMs = [tm for tm in allTMs if tm.team_id in myTeams]
+            filteredIds = {
+                tm.member_id for tm in allTMs if tm.team_id in myTeams}
             for member in allMembers:
-                member.linked = False
-                for tm in filteredTMs:
-                    if tm.member_id == member.id:
-                        member.linked = True
-                        break
+                member.linked = member.id in filteredIds
         return allMembers
 
     def get(self, *args, **kwargs):

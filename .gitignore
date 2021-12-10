@@ -3,3 +3,5 @@ db.sqlite3
 */migrations/*
 mysqlclient-2.0.3-cp39-cp39-win_amd64.whl
 aktdb/settings.py
+staticfiles/*
+dbtest.py

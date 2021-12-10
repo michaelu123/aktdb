@@ -18,5 +18,5 @@ def getMySelfId(req):
         user = req.user
         myself = Member.objects.get(
             first_name=user.first_name, last_name=user.last_name)
-        req.session["myselfId"] = myself.id
+        req.session["myselfId"] = myselfId = myself.id
     return myselfId
