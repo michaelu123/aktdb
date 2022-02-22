@@ -12,6 +12,7 @@ from .models import Member, Team, TeamMember, MemberRole
 from .forms import MemberDetailForm, TeamDetailForm
 from .utils import is_admin, getMySelfId
 from .excel import excelMembers, excelTeam
+from .importEx import ImpEx
 
 
 def index(req):
@@ -326,3 +327,9 @@ class Excel(View):
         if pk:
             return excelTeam(self.request, pk, file, prefEmail)
         return excelMembers(self.request, file, prefEmail)
+
+
+def importEx(req):
+    impEx = ImpEx()
+    impEx.impEx(req)
+    return render(req, "aktivendb/index.html")

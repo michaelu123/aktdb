@@ -1,12 +1,15 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = True` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 from django.urls import reverse
+
+# Importieren von aktivendb:
+# In AktivenDB Aktive als Excel runterladen, z.B. alle.xlsx
+# in urls.py Eintrag für "import" aktivieren
+# mit phase = 1, 2, 3 jeweils die URL http://.../import?file=.../alle.xlsx aufrufen
+# phase 1: Meldungen wenn Name aus Excel-Datei nicht in der DB steht. Prüfen, ob Name geändert
+# phase 2: Update oder Neuanlage von Membern (NICHT von teams, das ist Handarbeit!)
+# phase 3: Löschen von Membern, die nicht im Excel vorkommen
+
+# managed: FALSE => Django faßt die Tabellen nicht an
 
 
 class Ability(models.Model):
@@ -19,7 +22,7 @@ class Ability(models.Model):
     deleted_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'abilities'
 
 
@@ -36,7 +39,7 @@ class MemberRole(models.Model):
         return self.title
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'member_roles'
 
 
@@ -52,7 +55,7 @@ class AbilityMemberRole(models.Model):
     deleted_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'ability_member_role'
 
 
@@ -90,7 +93,7 @@ class Member(models.Model):
         return reverse("member-detail", args=[self.id])
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'members'
 
 
@@ -114,7 +117,7 @@ class Team(models.Model):
         return reverse("team-detail", args=[self.id])
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'project_teams'
 
 
@@ -133,7 +136,7 @@ class TeamMember(models.Model):
     deleted_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'project_team_member'
 
 
@@ -153,7 +156,7 @@ class User(models.Model):
         return self.member.fullname()
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'users'
 
 
@@ -169,5 +172,5 @@ class AbilityUser(models.Model):
     deleted_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'ability_user'

@@ -15,4 +15,6 @@ urlpatterns = [
     path("accounts/", include('django.contrib.auth.urls')),
     path("excel", views.Excel.as_view(), name="excel-members"),
     path("excel/<int:pk>", views.Excel.as_view(), name="excel-team"),
+    # http://.../import?file = c:/temp/xxx.xlsx
+    # path("import", views.importEx, name="import")
 ]
