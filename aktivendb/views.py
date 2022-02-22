@@ -28,7 +28,7 @@ class AllMembersView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["is_admin"] = is_admin(self.request)
-        ctx["search"] = self.request.session.get("search", "")
+        # ctx["search"] = self.request.session.get("search", "")
         return ctx
 
     def get_queryset(self):
@@ -136,7 +136,7 @@ class MemberDetailView(LoginRequiredMixin, UpdateView):
                 print(e)
                 return HttpResponseRedirect(redirect_to=reverse("members-all"))
 
-        self.request.session["search"] = self.request.GET.get("search", "")
+        # self.request.session["search"] = self.request.GET.get("search", "")
         self.teammemberIdToDelete = self.request.GET.get("deltm")
         if self.teammemberIdToDelete != None:
             teammember = TeamMember.objects.get(

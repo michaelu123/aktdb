@@ -11,14 +11,18 @@
         <ul id="member_list">
             {% for member in members %}
                 {% if member.linked %}
-                    <a href="{% url 'member-detail' member.id %}?search="><li class="linked">{{member.first_name}} {{member.last_name}}</li></a>
+                    {% if member.active %}
+                        <a href="{% url 'member-detail' member.id %}?search="><li class="linked">{{member.first_name}} {{member.last_name}}</li></a>
+                    {% else %}
+                        <a href="{% url 'member-detail' member.id %}?search="><li class="linked inactive">{{member.first_name}} {{member.last_name}}</li></a>
+                    {% endif %}
                 {% else %}
                     <li>{{member.first_name}} {{member.last_name}}</li>
                 {% endif %}
-            {% endfor %}
+            {% endfor %} 
         </ul>
         {% if is_admin %}
-            <br>
+            <br>  
             <button type="button">
                 <a href="addmember">Neues Mitglied hinzufügen</a>
             </button>
